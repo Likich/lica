@@ -1,0 +1,249 @@
+<!doctype html language='English'>
+
+
+<head>
+
+    <title>Topic modeling graph</title>
+    <link rel="stylesheet" href="static/data/rubic.css">
+    <link id="dark-theme-style" rel="stylesheet" href="static/data/dark-theme.css" disabled>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    </head>
+    <body>
+   
+    <h1>QualCode</h1>
+    <h3>Angelina Parfenova</h3>
+
+
+    <p class="links">
+    <a href="https://github.com/Likich/TM_graph">Get the source</a>
+    </p>
+    <!-- <label for="theme-slider">Dark Mode:</label>
+    <input type="checkbox" id="theme-slider" name="theme-slider"> -->
+
+    
+    <!-- <script>
+
+
+        // Save the theme to localStorage
+        localStorage.setItem('theme', 'dark-theme'); // For dark theme
+        localStorage.setItem('theme', ''); // For light theme
+        document.addEventListener('DOMContentLoaded', function () {
+        const currentTheme = localStorage.getItem('theme');
+        const darkThemeStyle = document.getElementById('dark-theme-style');
+
+        if (currentTheme === 'dark-theme') {
+            darkThemeStyle.disabled = false;
+            document.documentElement.classList.add('dark-theme');
+            // Set the toggle position if you have a toggle on this page as well
+            const toggleSwitch = document.getElementById('theme-slider');
+            if (toggleSwitch) toggleSwitch.checked = true;
+        }
+        }); -->
+
+<!-- 
+        // document.addEventListener('DOMContentLoaded', function () {
+        // const toggleSwitch = document.getElementById('theme-slider');
+        // const darkThemeStyle = document.getElementById('dark-theme-style');
+
+        // // Check for stored preference and update checkbox
+        // const currentTheme = localStorage.getItem('theme');
+        // if (currentTheme === 'dark-theme') {
+        //     darkThemeStyle.disabled = false;
+        //     toggleSwitch.checked = true;
+        // }
+
+        // toggleSwitch.addEventListener('change', function (e) {
+        //     if (e.target.checked) {
+        //     darkThemeStyle.disabled = false;
+        //     localStorage.setItem('theme', 'dark-theme');
+        //     } else {
+        //     darkThemeStyle.disabled = true;
+        //     localStorage.setItem('theme', '');
+        //     }
+        // });
+        // }); -->
+<!-- 
+      </script> -->
+      
+
+
+    <p><b>Instructions:</b></p>
+
+    <p>Please note that at the moment the service only works for the Russian and English language. 
+
+        <p>Copy paste your text in the box below and click submit.</p>
+        
+        <p>Insert additional stopwords separated by comma in the box and click submit. Example: thinking, doesn, it, etc</p>
+
+        <p>Click the lemmatize button that will produce the lemmatized version of your text. </p>
+        
+        <p> Click the preprocess button, after that you are given word frequencies. Think about which ones you can put in the stop words and edit additional stopwords if necessary. </p>
+        
+        <p> Next, type in the field for the method name: LDA or BERT, and specify the desired number of tops. Run the model and wait. BERT is much better, but takes considerable time.</p>
+        
+
+    
+    <meta charset=utf-8> </head>
+    <body>
+    <h1>Run the model</h1>
+
+    <!-- Text input for the main text -->
+    <form id="textInputForm">
+        <textarea id="fileInput" rows="10" cols="50" placeholder="Enter your text here..."></textarea>
+        <button type="button" onclick="uploadText('fileInput', 'main')">Submit Text</button>
+
+    </form>
+
+    <!-- Text input for additional stopwords -->
+    <form id="stopWordsForm">
+        <textarea id="fileInput2" rows="5" cols="50" placeholder="Enter additional stop words here..."></textarea>
+        <button type="button" onclick="uploadText('fileInput2', 'stopwords')">Submit Stopwords</button>
+
+    </form>
+
+    <script>
+    function uploadText(textareaId, fileType) {
+        var text = document.getElementById(textareaId).value; // Get the text from the textarea
+        var formData = new FormData();
+        formData.append("text", text);
+        formData.append("fileType", fileType); // Add fileType to FormData
+    
+        $.ajax({
+            url: "/uploadText", // The server endpoint
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                alert("Text submitted successfully.");
+            },
+            error: function(xhr, status, error) {
+                alert("Error submitting text.");
+            }
+        });
+    }
+    </script>
+ 
+<!-- Rest of your forms and elements -->
+
+    <!-- <form>
+        <input type="file" id="fileInput" />
+        <button onclick="uploadFile('fileInput')">Upload File</button>
+    </form>
+    
+    <form>
+        <input type="file" id="fileInput2" />
+        <button onclick="uploadFile('fileInput2')">Upload Additional Stopwords</button>
+    </form> -->
+    
+    <br>
+
+    <form>
+        <!-- ... other form elements ... -->
+        <label for="includeInterviewer">Include Interviewer Phrases:</label>
+        <input type="checkbox" id="includeInterviewer" name="includeInterviewer" checked>
+        <br>
+        <button onclick="lemmatize()">Lemmatize</button>
+    </form>
+
+
+    <p class="btnwrap"><button> <a href="/my-preprocess/">Preprocess</a></button></p>       
+
+        
+    <form id="graphForm" action="/graph/" method="POST" target = '_blank'>
+        <p>Method:
+            <select name="Method" id="s1">
+                <option value="LDA">LDA</option>
+                <option value="BERT">BERT</option>
+            </select>
+        </p>
+        <p>Max Number of Topics <input type="value" name="Topics number" /></p>
+        <p>Number of Keywords: <input type="number" name="KeywordsNumber" /></p>
+        <p>
+            <input type="submit" value="Submit">
+                </div>
+            </div>
+        </p>
+    </form>
+    
+    <div class="loader-wrapper">
+        <div class="loader">
+            <div class="loader-inner"></div>
+        </div>
+    </div>
+
+      
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script>
+		$(window).on("load",function(){
+     	 	$(".loader-wrapper").fadeOut("slow");
+		});
+	</script>
+
+    <script>
+        function lemmatize() {
+            // Show the loader
+            $('.loader-wrapper').show();
+            var includeInterviewer = document.getElementById("includeInterviewer").checked;
+            $.get("/my-link", { includeInterviewer: includeInterviewer }, function(data) {
+                // Hide the loader when done
+                $('.loader-wrapper').hide();
+                alert('File is processed'); // Display the response message
+            }).fail(function() {
+                // Hide the loader even if there is an error
+                $('.loader-wrapper').hide();
+                alert("Error: Could not process the file.");
+            });
+        }
+
+    </script>
+
+
+
+
+
+
+
+    <script>
+        function uploadFile(inputId) {
+            var fileInput = document.getElementById(inputId);
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append("file", file);
+            $.ajax({
+                url: "/upload",
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    alert(data); // Display a success message to the user if needed
+                }
+            });
+        }
+    </script>
+
+    <script>
+        function showLoading() {
+            // Display the loading animation when the "Submit" button is clicked
+            $('.loader-wrapper').fadeIn("slow");
+            // You can add your processing logic here
+            // For example, make an AJAX request, and once it's complete, hide the loader.
+            $.ajax({
+                // Your AJAX configuration here
+            }).done(function (response) {
+                // Hide the loader after processing is complete
+                $('.loader-wrapper').fadeOut("slow");
+                // You can do more with the response if needed
+            });
+        }
+    </script>
+
+
+
+
+
+    </body>
+

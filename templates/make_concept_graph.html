@@ -1,0 +1,167 @@
+<!doctype html>
+<title>Topic modeling graph</title>
+
+<link rel="stylesheet" href="/static/data/rubic.css">
+<link id="dark-theme-style" rel="stylesheet" href="static/data/dark-theme.css" disabled>
+
+<div class="loader-wrapper">
+  <span class="loader"><span class="loader-inner"></span></span>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(window).on("load",function(){
+    $(".loader-wrapper").fadeOut("slow");
+});
+</script>
+
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v2.min.js?2.9.3"></script>
+<style>
+
+
+.link {
+  stroke: #aaa;
+}
+
+.node text {
+stroke:#333;
+}
+
+.node circle{
+stroke:#fff;
+stroke-width:3px;
+fill:#555;
+}
+
+
+</style>
+</form>               
+<p class="btnwrap"> <button>  <a href="/graph/">TM graph</a></button> </p> -->
+        
+</form>
+<body>
+
+
+<script>
+
+
+d3.json(("/static/data/concept_graph.json"), function(json) {
+
+    var nodes = json.nodes,
+        links = json.links;
+
+    // Initialize degree count for each node based on their index
+    let degrees = nodes.map(() => 0);  // Array to keep degrees based on node index
+
+    // Accumulate degree based on links
+    links.forEach(link => {
+        degrees[link.source] += 1;
+        degrees[link.target] += 1;
+    });
+
+    var width = 2700,
+        height = 1450;
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    var force = d3.layout.force()
+        .nodes(nodes)
+        .links(links)
+        .gravity(0.05)
+        .distance(150)
+        .charge(-200)
+        .size([width, height])
+        .start();
+
+    var link = svg.selectAll(".link")
+        .data(links)
+        .enter().append("line")
+        .attr("class", "link")
+        .style("stroke-width", function(d) { return Math.sqrt(d.weight); })
+        .style("stroke", function(d) { return d.color; });
+
+    var node = svg.selectAll(".node")
+        .data(nodes)
+        .enter().append("g")
+        .attr("class", "node")
+        .call(force.drag);
+
+    node.append("circle")
+        .attr("r", 5);
+
+    // Define a scale for text size based on node degree
+    // var textSizeScale = d3.scale.linear()
+    //     .domain([1, d3.max(degrees)])  // Use the maximum degree from the degrees array
+    //     .range([8, 20]);  // More reasonable range, adjust as needed
+
+
+    var textSizeScale = d3.scale.log()
+        .domain([1, d3.max(degrees)])  // Ensure no zero; log scale cannot start at 0
+        .range([9, 30]);  // Adjust range to fit your design needs
+
+    node.append("text")
+        .attr("dx", 12)
+        .attr("dy", ".35em")
+        .style("font-size", function(d) {
+            return textSizeScale(degrees[d.index]) + "px";
+        })
+        .text(function(d) { return d.name; });
+
+
+    node.append("circle")
+      .data(json.links)
+    .attr("r","8").style("fill", 'gray');
+
+    force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  });
+
+    force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  });
+
+  // Add an event listener for node clicks
+    node.on("click", function(d) {
+      console.log('data from click')
+      console.log(d)
+      // Make an AJAX request to the server with the node information
+      $.ajax({
+          url: '/node-info-concept/' + encodeURIComponent(d.name), // Update with your server endpoint
+          method: 'GET', // Change to 'GET' or 'POST' depending on your server setup
+          contentType: 'application/json',
+          data: JSON.stringify({ nodeName: d.name }), // Send node information to the server
+          success: function(response) {
+            console.log('response:')
+              console.log(response)
+              // Update the content of the node-info div with the server response
+              $('#node-info').html(response);
+          },
+          error: function(error) {
+              console.error('Error fetching node information:', error);
+          }
+      });
+});
+
+});
+
+
+
+</script>
+
+<div id="node-info"></div>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!doctype html>
+<title>Topic modeling graph</title>
+
+<link rel="stylesheet" href="/static/data/rubic.css">
+<link id="dark-theme-style" rel="stylesheet" href="static/data/dark-theme.css" disabled>
+
+<div class="loader-wrapper">
+  <span class="loader"><span class="loader-inner"></span></span>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(window).on("load",function(){
+    $(".loader-wrapper").fadeOut("slow");
+});
+</script>
+
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v2.min.js?2.9.3"></script>
+<style>
+
+
+.link {
+  stroke: #aaa;
+}
+
+.node text {
+stroke:#333;
+}
+
+.node circle{
+stroke:#fff;
+stroke-width:3px;
+fill:#555;
+}
+
+
+</style>
+</form>               
+<p class="btnwrap"> <button>  <a href="/my-translate/">Translate</a></button> </p>
+
+<!-- </form>               
+<p class="btnwrap"> <button>  <a href="/my-qualcode/">QualCode</a></button> </p>
+ -->
+
+<form id="conceptgraphForm" action="/my-qualcode/" method="POST" target = '_blank'>
+  <p>Model:
+      <select name="Model" id="s1">
+          <option value="Llama3">Llama3</option>
+          <option value="Falcon">Falcon</option>
+      </select>
+  </p>
+      <input type="submit" value="Submit">
+          </div>
+      </div>
+  </p>
+</form>
+        
+</form>
+<body>
+
+
+<script>
+
+
+
+var width = 2700,
+    height = 1450
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+    
+var force = d3.layout.force()
+    .gravity(.05)
+    .distance(100)
+    .charge(-100)
+    .size([width, height]);
+
+
+d3.json(("/static/data/graph.json"), function(json) {
+  force
+      .nodes(json.nodes)
+      .links(json.links)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(json.links)
+    .enter().append("line")
+      .attr("class", "link")
+    .style("stroke-width", function(d) { return Math.sqrt(d.weight); })
+    .style('stroke', function(d) {return d.color} );
+
+  var node = svg.selectAll(".node")
+      .data(json.nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .call(force.drag);
+
+  node.append("text")
+      .attr("dx", 12)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name });
+
+  node.append("circle")
+      .data(json.links)
+    .attr("r","8").style("fill", 'gray');
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  });
+  // Add an event listener for node clicks
+  node.on("click", function(d) {
+      console.log('data from click')
+      console.log(d)
+      // Make an AJAX request to the server with the node information
+      $.ajax({
+          url: '/node-info/' + encodeURIComponent(d.name), // Update with your server endpoint
+          method: 'GET', // Change to 'GET' or 'POST' depending on your server setup
+          contentType: 'application/json',
+          data: JSON.stringify({ nodeName: d.name }), // Send node information to the server
+          success: function(response) {
+            console.log('response:')
+              console.log(response)
+              // Update the content of the node-info div with the server response
+              $('#node-info').html(response);
+          },
+          error: function(error) {
+              console.error('Error fetching node information:', error);
+          }
+      });
+});
+
+});
+
+
+
+</script>
+
+<div id="node-info"></div>
+
+</body>
+</html>
