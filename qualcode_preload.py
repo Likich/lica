@@ -5,8 +5,12 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 from peft import PeftModel, PeftConfig
 from tqdm.notebook import tqdm
 
+
 def process_doc_topics(input_csv='doc_topics.csv', output_csv='coded_lemmas_new.csv', model_name = "Likich/falcon-finetune-qualcoding_1000_prompt1_dot"):
     # Set CUDA environment
+    with open('token.txt', 'r') as file:
+        hf_token = file.read().strip()
+        
     os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
     # Define BitsAndBytesConfig
@@ -26,10 +30,10 @@ def process_doc_topics(input_csv='doc_topics.csv', output_csv='coded_lemmas_new.
         quantization_config=bnb_config,
         device_map="auto",
         trust_remote_code=True,
-        token = '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'
+        token = hf_token
     )
 
-    tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path, token= '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')
+    tokenizer = AutoTokenizer.from_pretrained(config.base_model_name_or_path, token= hf_token)
     tokenizer.pad_token = tokenizer.eos_token
 
     # Device and generation configuration
@@ -49,7 +53,7 @@ def process_doc_topics(input_csv='doc_topics.csv', output_csv='coded_lemmas_new.
     def extract_ideas(sentences):
         summaries = []
         for sentence in tqdm(sentences, desc="Extracting ideas"):
-            prompt = f"<human>:Summarize the main idea of a citation.{sentence}\n<assistant>:".strip()
+            prompt = f"<human>:Summarize the main idea of a citation in less than 5 words.{sentence}\n<assistant>:".strip()
             encoding = tokenizer(prompt, return_tensors="pt").to(device)
             with torch.no_grad():
                 outputs = mod.generate(input_ids=encoding.input_ids, attention_mask=encoding.attention_mask, generation_config=generation_config)
