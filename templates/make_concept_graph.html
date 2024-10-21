@@ -1,167 +1,274 @@
 <!doctype html>
-<title>Topic modeling graph</title>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Topic Modeling Graph</title>
 
-<link rel="stylesheet" href="/static/data/rubic.css">
-<link id="dark-theme-style" rel="stylesheet" href="static/data/dark-theme.css" disabled>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/data/rubic.css">
+    <link id="dark-theme-style" rel="stylesheet" href="static/data/dark-theme.css" disabled>
 
-<div class="loader-wrapper">
-  <span class="loader"><span class="loader-inner"></span></span>
-</div>
+    <!-- Custom Styles for Loader, Theme, and Violet/Gray Styling -->
+    <style>
+        :root {
+            --bg-color: #1c1c1e;
+            --text-color: #ffffff;
+            --link-color: #6a0dad;
+            --node-color: #6a0dad;
+            --link-stroke: #6a0dad;
+        }
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script>
-$(window).on("load",function(){
-    $(".loader-wrapper").fadeOut("slow");
-});
-</script>
+        body.light-mode {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --link-color: #333;
+            --node-color: #dddddd;
+            --link-stroke: #999;
+        }
 
-<meta charset="utf-8">
-<script src="https://d3js.org/d3.v2.min.js?2.9.3"></script>
-<style>
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Open Sans', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
 
+        .loader-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(28, 28, 30, 0.8);
+            z-index: 9999;
+        }
 
-.link {
-  stroke: #aaa;
-}
+        .loader {
+            border: 8px solid var(--link-color);
+            border-top: 8px solid var(--text-color);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
 
-.node text {
-stroke:#333;
-}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-.node circle{
-stroke:#fff;
-stroke-width:3px;
-fill:#555;
-}
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            border: none;
+            background: var(--link-color);
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
 
+        #graph-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+        }
 
-</style>
-</form>               
-<p class="btnwrap"> <button>  <a href="/graph/">TM graph</a></button> </p> -->
-        
-</form>
+        .link {
+            stroke: var(--link-stroke);
+        }
+
+        .node text {
+            fill: var(--text-color);
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .node circle {
+            stroke: #ffffff;
+            fill: var(--node-color);
+            stroke-width: 2px;
+        }
+
+        #node-info {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v2.min.js?2.9.3"></script>
+</head>
 <body>
 
+    <!-- Loader -->
+    <div class="loader-wrapper">
+        <div class="loader"></div>
+    </div>
 
-<script>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Black/White Mode</button>
 
+    <!-- Header Section -->
+    <div class="container text-center mt-5">
+        <h3>Open coding</h3>
 
-d3.json(("/static/data/concept_graph.json"), function(json) {
+        <!-- Text Length Slider -->
+        <div class="mt-3">
+            <input type="range" id="text-length-slider" min="0" max="100" step="1" value="100" class="form-range w-50">
+            <label for="text-length-slider">Maximum Text Length: <span id="text-length-label">100</span></label>
+        </div>
+    </div>
 
-    var nodes = json.nodes,
-        links = json.links;
+    <!-- D3 Visualization Section -->
+    <div id="graph" class="container mt-4"></div>
 
-    // Initialize degree count for each node based on their index
-    let degrees = nodes.map(() => 0);  // Array to keep degrees based on node index
+    <!-- Node Info Display Section -->
+    <div id="node-info" class="container mt-4 text-center"></div>
 
-    // Accumulate degree based on links
-    links.forEach(link => {
-        degrees[link.source] += 1;
-        degrees[link.target] += 1;
-    });
+    <script>
+        $(window).on("load", function() {
+            $(".loader-wrapper").fadeOut("slow");
+        });
 
-    var width = 2700,
-        height = 1450;
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+        }
 
-    var svg = d3.select("body").append("svg")
-        .attr("width", width)
-        .attr("height", height);
+        d3.json(("/static/data/concept_graph.json"), function(json) {
+            var nodes = json.nodes,
+                links = json.links;
 
-    var force = d3.layout.force()
-        .nodes(nodes)
-        .links(links)
-        .gravity(0.05)
-        .distance(150)
-        .charge(-200)
-        .size([width, height])
-        .start();
+            let degrees = nodes.map(() => 0);  
+            links.forEach(link => {
+                degrees[link.source] += 1;
+                degrees[link.target] += 1;
+            });
 
-    var link = svg.selectAll(".link")
-        .data(links)
-        .enter().append("line")
-        .attr("class", "link")
-        .style("stroke-width", function(d) { return Math.sqrt(d.weight); })
-        .style("stroke", function(d) { return d.color; });
+            var width = 1200,
+                height = 800;
 
-    var node = svg.selectAll(".node")
-        .data(nodes)
-        .enter().append("g")
-        .attr("class", "node")
-        .call(force.drag);
+            var svg = d3.select("#graph").append("svg")
+                .attr("width", width)
+                .attr("height", height);
 
-    node.append("circle")
-        .attr("r", 5);
+            var force = d3.layout.force()
+                .nodes(nodes)
+                .links(links)
+                .gravity(0.05)
+                .distance(200)
+                .charge(-200)
+                .size([width, height])
+                .start();
 
-    // Define a scale for text size based on node degree
-    // var textSizeScale = d3.scale.linear()
-    //     .domain([1, d3.max(degrees)])  // Use the maximum degree from the degrees array
-    //     .range([8, 20]);  // More reasonable range, adjust as needed
+            var node = svg.selectAll(".node")
+                .data(nodes)
+                .enter().append("g")
+                .attr("class", "node")
+                .call(force.drag)
+                .on("click", function(d) {  
+                    fetchDocument(d.name);  
+                });
 
+            node.append("circle")
+                .attr("r", 8)
+                .style("fill", "var(--node-color)");
 
-    var textSizeScale = d3.scale.log()
-        .domain([1, d3.max(degrees)])  // Ensure no zero; log scale cannot start at 0
-        .range([9, 30]);  // Adjust range to fit your design needs
-
-    node.append("text")
-        .attr("dx", 12)
-        .attr("dy", ".35em")
-        .style("font-size", function(d) {
-            return textSizeScale(degrees[d.index]) + "px";
-        })
-        .text(function(d) { return d.name; });
-
-
-    node.append("circle")
-      .data(json.links)
-    .attr("r","8").style("fill", 'gray');
-
-    force.on("tick", function() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
-    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-  });
-
-    force.on("tick", function() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
-
-    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-  });
-
-  // Add an event listener for node clicks
-    node.on("click", function(d) {
-      console.log('data from click')
-      console.log(d)
-      // Make an AJAX request to the server with the node information
-      $.ajax({
-          url: '/node-info-concept/' + encodeURIComponent(d.name), // Update with your server endpoint
-          method: 'GET', // Change to 'GET' or 'POST' depending on your server setup
-          contentType: 'application/json',
-          data: JSON.stringify({ nodeName: d.name }), // Send node information to the server
-          success: function(response) {
-            console.log('response:')
-              console.log(response)
-              // Update the content of the node-info div with the server response
-              $('#node-info').html(response);
-          },
-          error: function(error) {
-              console.error('Error fetching node information:', error);
-          }
-      });
-});
-
-});
+            node.append("text")
+                .attr("dx", 12)
+                .attr("dy", ".35em")
+                .text(function(d) { return d.name; });
 
 
+            var link = svg.selectAll(".link")
+                .data(links)
+                .enter().append("line")
+                .attr("class", "link")
+                .style("stroke-width", function(d) { return Math.sqrt(d.weight); })
+                .style("stroke",  function(d) {return d.color});
 
-</script>
+            force.on("tick", function() {
+                link.attr("x1", function(d) { return d.source.x; })
+                    .attr("y1", function(d) { return d.source.y; })
+                    .attr("x2", function(d) { return d.target.x; })
+                    .attr("y2", function(d) { return d.target.y; });
 
-<div id="node-info"></div>
+                node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+            });
 
+            d3.select("#text-length-slider").on("input", function() {
+                var maxLength = +this.value;
+                d3.select("#text-length-label").text(maxLength);
+
+                var filteredNodes = nodes.filter(function(d) {
+                    return d.name.length <= maxLength;
+                });
+
+                var filteredLinks = links.filter(function(link) {
+                    return filteredNodes.includes(link.source) && filteredNodes.includes(link.target);
+                });
+
+                // Update node and link data with filtered results
+                node = node.data(filteredNodes, function(d) { return d.name; });
+                link = link.data(filteredLinks, function(d) { return d.source.index + "-" + d.target.index; });
+
+                // Remove old elements
+                node.exit().remove();
+                link.exit().remove();
+
+                // Enter new elements
+                var nodeEnter = node.enter().append("g")
+                    .attr("class", "node")
+                    .call(force.drag)
+                    .on("click", function(d) {
+                        fetchDocument(d.name);
+                    });
+
+                nodeEnter.append("circle")
+                    .attr("r", 8)
+                    .style("fill", "var(--node-color)");
+
+                nodeEnter.append("text")
+                    .attr("dx", 12)
+                    .attr("dy", ".35em")
+                    .text(function(d) { return d.name; });
+
+                link.enter().append("line")
+                    .attr("class", "link")
+                    .style("stroke-width", function(d) { return Math.sqrt(d.weight); })
+                    .style("stroke", "var(--link-stroke)");
+
+                force.nodes(filteredNodes).links(filteredLinks).start();
+            });
+        });
+
+        function fetchDocument(nodeName) {
+            $.ajax({
+                url: '/node-info-concept/' + encodeURIComponent(nodeName),
+                method: 'GET',
+                success: function(response) {
+                    $('#node-info').html(response);
+                },
+                error: function(error) {
+                    console.error('Error fetching document:', error);
+                    $('#node-info').html("<p>Error fetching document content.</p>");
+                }
+            });
+        }
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

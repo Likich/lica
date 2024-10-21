@@ -1,26 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Preprocessed Data</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styles for the Violet Theme -->
+    <style>
+        .table-custom {
+            background-color: #1c1c1e; /* Dark background for table */
+            color: #ffffff;
+        }
+
+        .table-custom th {
+            background-color: #6a0dad; /* Violet header */
+            color: #ffffff;
+        }
+
+        .table-custom td {
+            color: #ffffff;
+        }
+
+        .btn-custom-violet {
+            background-color: #6a0dad;
+            color: white;
+            border-color: #6a0dad;
+        }
+
+        .btn-custom-violet:hover {
+            background-color: #5a0ca8;
+            border-color: #5a0ca8;
+        }
+
+        a {
+            color: #6a0dad;
+        }
+
+        a:hover {
+            color: #5a0ca8;
+        }
+    </style>
 </head>
-<body>
-    <h1>Preprocessed Data</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>Word</th>
-                <th>Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in data %}
-            <tr>
-                <td>{{ item.vals }}</td>
-                <td>{{ item.count }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <a href="/">Go back</a>
+<body class="bg-dark text-center text-white">
+    <div class="container mt-5">
+        <h1>Preprocessed Data</h1>
+        
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover table-custom mt-3">
+                <thead>
+                    <tr>
+                        <th scope="col">Word</th>
+                        <th scope="col">Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>{{ item.vals }}</td>
+                        <td>{{ item.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Back Button -->
+        <a href="/" class="btn btn-custom-violet mt-3">Go Back</a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

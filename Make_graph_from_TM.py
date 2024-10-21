@@ -1,4 +1,5 @@
-def make_graph_big(method, k, num_keywords=20):
+
+def make_graph_big(method, k, num_keywords=20, seed=100):
 
     from TM import Topic_Model
     from gensim import corpora
@@ -17,10 +18,9 @@ def make_graph_big(method, k, num_keywords=20):
     color_pallette = ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
                 for i in range(number_of_colors)]
 
-
+            
     if method == 'BERT':
-
-        tm = Topic_Model(k = int(k), method = 'BERT', num_keywords=num_keywords)
+        tm = Topic_Model(k=k, method=method, num_keywords=num_keywords, seed=seed)
         model_res = tm.fit(corpus, dictionary, cluster_model='hdbscan')
         nodes = []
         links = []
@@ -70,7 +70,7 @@ def make_graph_big(method, k, num_keywords=20):
             json.dump(dict_json, file, ensure_ascii=False)
 
     elif method == 'LDA':
-        tm1 = Topic_Model(k = int(k), method = 'LDA', num_keywords=num_keywords)
+        tm1 = Topic_Model(k = int(k), method = 'LDA', num_keywords=num_keywords, seed=seed)
         model_res, to_show = tm1.fit(corpus, dictionary)
         nodes = []
         links = []
