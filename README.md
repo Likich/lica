@@ -1,7 +1,8 @@
 # Qualcode
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-![QualCode Logo](https://github.com/Likich/qualcode/assets/logo.png)
+
+![logo](https://github.com/user-attachments/assets/b30a4780-33c4-49ea-b114-478e8d85f74a)
 
 
 ## Overview
