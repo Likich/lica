@@ -1,219 +1,149 @@
 <!doctype html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Topic Modeling Graph</title>
+<title>Topic modeling graph</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/data/rubic.css">
-    <link id="dark-theme-style" rel="stylesheet" href="static/data/dark-theme.css" disabled>
+<link rel="stylesheet" href="/static/data/rubic.css">
+<link id="dark-theme-style" rel="stylesheet" href="static/data/dark-theme.css" disabled>
 
-    <!-- Custom Styles for Loader, Theme, and Violet Styling -->
-    <style>
-        :root {
-            --bg-color: #1c1c1e;
-            --text-color: #ffffff;
-            --link-color: #6a0dad;
-            --node-color: #6a0dad;
-            --link-stroke: #6a0dad;
-        }
+<div class="loader-wrapper">
+  <span class="loader"><span class="loader-inner"></span></span>
+</div>
 
-        body.light-mode {
-            --bg-color: #ffffff;
-            --text-color: #000000;
-            --link-color: #333;
-            --node-color: #dddddd;
-            --link-stroke: #999;
-        }
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+$(window).on("load",function(){
+    $(".loader-wrapper").fadeOut("slow");
+});
+</script>
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Open Sans', sans-serif;
-            transition: background-color 0.3s, color 0.3s;
-        }
+<meta charset="utf-8">
+<script src="https://d3js.org/d3.v2.min.js?2.9.3"></script>
+<style>
 
-        .loader-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(28, 28, 30, 0.8);
-            z-index: 9999;
-        }
 
-        .loader {
-            border: 8px solid var(--link-color);
-            border-top: 8px solid var(--text-color);
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
+.link {
+  stroke: #aaa;
+}
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+.node text {
+stroke:#333;
+}
 
-        .btn-custom-violet {
-            background-color: var(--link-color);
-            color: white;
-            border-color: var(--link-color);
-        }
+.node circle{
+stroke:#fff;
+stroke-width:3px;
+fill:#555;
+}
 
-        .btn-custom-violet:hover {
-            background-color: #5a0ca8;
-            border-color: #5a0ca8;
-        }
 
-        .link {
-            stroke: var(--link-stroke);
-        }
+</style>
+</form>               
+<p class="btnwrap"> <button>  <a href="/my-translate/">Translate</a></button> </p>
 
-        .node text {
-            fill: var(--text-color);
-            font-weight: bold;
-        }
+<!-- </form>               
+<p class="btnwrap"> <button>  <a href="/my-qualcode/">QualCode</a></button> </p>
+ -->
 
-        .node circle {
-            stroke: #ffffff;
-            fill: var(--node-color);
-            stroke-width: 2px;
-        }
-
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 5px 10px;
-            border: none;
-            background: var(--link-color);
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        #graph {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-        }
-    </style>
-
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://d3js.org/d3.v2.min.js?2.9.3"></script>
-</head>
+<form id="conceptgraphForm" action="/my-qualcode/" method="POST" target = '_blank'>
+  <p>Model:
+      <select name="Model" id="s1">
+          <option value="Llama3">Llama3</option>
+          <option value="Falcon">Falcon</option>
+      </select>
+  </p>
+      <input type="submit" value="Submit">
+          </div>
+      </div>
+  </p>
+</form>
+        
+</form>
 <body>
 
-    <!-- Loader -->
-    <div class="loader-wrapper">
-        <div class="loader"></div>
-    </div>
 
-    <!-- Theme Toggle Button -->
-    <button class="theme-toggle" onclick="toggleTheme()">Toggle Black/White Mode</button>
+<script>
 
-    <!-- Header Section -->
-    <div class="container text-center mt-5">
-        <h1>Topic Modeling Graph</h1>
-        <form id="conceptgraphForm" action="/my-qualcode/" method="POST" target="_blank" class="text-center mt-4">
-            <label for="modelSelect">Model:</label>
-            <select name="Model" id="modelSelect" class="form-control d-inline-block w-auto mx-2">
-                <option value="Llama3">Llama3</option>
-                <option value="Falcon">Falcon</option>
-            </select>
-            <input type="submit" value="Submit" class="btn btn-custom-violet">
-        </form>
-        <a href="/" class="btn btn-custom-violet mt-3">Go Back</a>
-    </div>
 
-    <!-- D3 Visualization Section -->
-    <div id="graph"></div>
 
-    <!-- Node Info Display Section -->
-    <div id="node-info" class="container mt-5 text-center"></div>
+var width = 2700,
+    height = 1450
 
-    <script>
-        $(window).on("load", function() {
-            $(".loader-wrapper").fadeOut("slow");
-        });
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
 
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-        }
+    
+var force = d3.layout.force()
+    .gravity(.05)
+    .distance(100)
+    .charge(-100)
+    .size([width, height]);
 
-        // D3 Graph Visualization Script
-        var width = 1200,
-            height = 800;
 
-        var svg = d3.select("#graph").append("svg")
-            .attr("width", width)
-            .attr("height", height);
+d3.json(("/static/data/graph.json"), function(json) {
+  force
+      .nodes(json.nodes)
+      .links(json.links)
+      .start();
 
-        var force = d3.layout.force()
-            .gravity(0.05)
-            .distance(100)
-            .charge(-100)
-            .size([width, height]);
+  var link = svg.selectAll(".link")
+      .data(json.links)
+    .enter().append("line")
+      .attr("class", "link")
+    .style("stroke-width", function(d) { return Math.sqrt(d.weight); })
+    .style('stroke', function(d) {return d.color} );
 
-        d3.json("/static/data/graph.json", function(json) {
-            force.nodes(json.nodes).links(json.links).start();
+  var node = svg.selectAll(".node")
+      .data(json.nodes)
+    .enter().append("g")
+      .attr("class", "node")
+      .call(force.drag);
 
-            var link = svg.selectAll(".link")
-                .data(json.links)
-                .enter().append("line")
-                .attr("class", "link")
-                .style('stroke', function(d) {return d.color})
-                .style("stroke-width", function(d) { return Math.sqrt(d.weight); });
+  node.append("text")
+      .attr("dx", 12)
+      .attr("dy", ".35em")
+      .text(function(d) { return d.name });
 
-            var node = svg.selectAll(".node")
-                .data(json.nodes)
-                .enter().append("g")
-                .attr("class", "node")
-                .call(force.drag);
+  node.append("circle")
+      .data(json.links)
+    .attr("r","8").style("fill", 'gray');
 
-            node.append("circle")
-                .attr("r", 8);
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
 
-            node.append("text")
-                .attr("dx", 12)
-                .attr("dy", ".35em")
-                .text(function(d) { return d.name; });
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  });
+  // Add an event listener for node clicks
+  node.on("click", function(d) {
+      console.log('data from click')
+      console.log(d)
+      // Make an AJAX request to the server with the node information
+      $.ajax({
+          url: '/node-info/' + encodeURIComponent(d.name), // Update with your server endpoint
+          method: 'GET', // Change to 'GET' or 'POST' depending on your server setup
+          contentType: 'application/json',
+          data: JSON.stringify({ nodeName: d.name }), // Send node information to the server
+          success: function(response) {
+            console.log('response:')
+              console.log(response)
+              // Update the content of the node-info div with the server response
+              $('#node-info').html(response);
+          },
+          error: function(error) {
+              console.error('Error fetching node information:', error);
+          }
+      });
+});
 
-            force.on("tick", function() {
-                link.attr("x1", function(d) { return d.source.x; })
-                    .attr("y1", function(d) { return d.source.y; })
-                    .attr("x2", function(d) { return d.target.x; })
-                    .attr("y2", function(d) { return d.target.y; });
+});
 
-                node.attr("transform", function(d) {
-                    return "translate(" + d.x + "," + d.y + ")";
-                });
-            });
 
-            node.on("click", function(d) {
-                $.ajax({
-                    url: '/node-info/' + encodeURIComponent(d.name),
-                    method: 'GET',
-                    success: function(response) {
-                        $('#node-info').html(response);
-                    },
-                    error: function(error) {
-                        console.error('Error fetching node information:', error);
-                    }
-                });
-            });
-        });
-    </script>
 
-    <!-- Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</script>
+
+<div id="node-info"></div>
+
 </body>
 </html>

@@ -9,13 +9,52 @@ import umap.umap_ as umap
 from transformers import BertTokenizer, BertModel
 from langdetect import detect
 from Preprocess import getText
-import numpy as np
-import random
-import torch
 
+# nltk.download('stopwords')
+# nltk.download('wordnet')
+# nltk.download('punkt')
 
+# class Autoencoder:
+#     """
+#     Autoencoder for learning latent space representation
+#     architecture simplified for only one hidden layer
+#     """
+    
+#     def __init__(self, latent_dim=32, activation='relu', epochs=200, batch_size=128):
+#         self.latent_dim = latent_dim
+#         self.activation = activation
+#         self.epochs = epochs
+#         self.batch_size = batch_size
+#         self.autoencoder = None
+#         self.encoder = None
+#         self.decoder = None
+#         self.his = None
+
+#     def _compile(self, input_dim):
+#         """
+#         compile the computational graph
+#         """
+#         input_vec =  keras.layers.Input(shape=(input_dim,))
+#         encoded =  keras.layers.Dense(self.latent_dim, activation=self.activation)(input_vec)
+#         decoded =  keras.layers.Dense(input_dim, activation=self.activation)(encoded)
+#         self.autoencoder = keras.models.Model(input_vec, decoded)
+#         self.encoder = keras.models.Model(input_vec, encoded)
+#         encoded_input =  keras.layers.Input(shape=(self.latent_dim,))
+#         decoder_layer = self.autoencoder.layers[-1]
+#         self.decoder = keras.models.Model(encoded_input, self.autoencoder.layers[-1](encoded_input))
+#         self.autoencoder.compile(optimizer='adam', loss=keras.losses.mean_squared_error)
+
+#     def fit(self, X):
+#         if not self.autoencoder:
+#             self._compile(X.shape[1])
+#         X_train, X_test = train_test_split(X)
+#         self.his = self.autoencoder.fit(X_train, X_train,
+#                                         epochs=200,
+#                                         batch_size=128,
+#                                         shuffle=True,
+#                                         validation_data=(X_test, X_test), verbose=0)
 class Topic_Model(object):
-    def __init__(self, k=10, method='LDA', num_keywords=20, seed=100):
+    def __init__(self, k=10, method='LDA', num_keywords=20 ):
         """
         :param k: number of topics
         :param method: method chosen for the topic model
@@ -24,8 +63,9 @@ class Topic_Model(object):
             raise Exception('Invalid method!')
         print('Initialized')
         self.k = k
+        # self.dictionary = dictionary
+        # self.corpus = corpus
         self.stopwords = None
-        self.seed = seed
         self.cluster_model = None
         self.ldamodel = None
         self.gamma = 15  # parameter for reletive importance of lda
@@ -33,15 +73,7 @@ class Topic_Model(object):
         self.method = method
         self.AE = None
         self.num_keywords = num_keywords
-        
-    def set_random_seed(self):
-        np.random.seed(self.seed)  # Use self.seed directly here
-        random.seed(self.seed)
-        torch.manual_seed(self.seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(self.seed)
-
-
+        np.random.seed(100)
        
     def vectorize(self, method=None):
         from gensim import corpora
@@ -74,7 +106,8 @@ class Topic_Model(object):
                 self.ldamodel = gensim.models.LdaMulticore(corpus, num_topics=self.k, 
                                        id2word = dictionary,
                                        workers = 2, passes=10,
-                                       chunksize=100, random_state=self.seed)
+                                       random_state=100,
+                                       chunksize=100)
                 def get_vec_lda(model, corpus, k):
                   n_doc = len(corpus)
                   vec_lda = np.zeros((n_doc, k))
@@ -131,7 +164,6 @@ class Topic_Model(object):
         from gensim.models import CoherenceModel
         import pickle
         import numpy as np
-        self.set_random_seed()
 
         dictionary = corpora.Dictionary.load('dictionary')
         corpus = corpora.MmCorpus('corpus')  
@@ -150,7 +182,7 @@ class Topic_Model(object):
               self.ldamodel = gensim.models.LdaMulticore(corpus, num_topics=self.k, 
                                        id2word = dictionary,
                                        workers = 2, passes=10,
-                                       random_state=self.seed,
+                                       random_state=100,
                                        chunksize=100)
               
               print('Fitting LDA Done!')
@@ -213,7 +245,7 @@ class Topic_Model(object):
         elif cluster_model == 'Kmeans':
 
           print('Clustering embeddings ...')
-          cm = KMeans(self.k, random_state=self.seed)
+          cm = KMeans(self.k, random_state=100)
           self.vec[method] = self.vectorize(method)
           cm.fit(self.vec[method])
           print('Clustering embeddings. Done!')
@@ -269,9 +301,8 @@ class Topic_Model(object):
 
         elif cluster_model == 'hdbscan':
           self.vec[method] = self.vectorize(method)
-          np.random.seed(self.seed)
           umap_embeddings = umap.UMAP(n_neighbors=15, 
-                            n_components=5, random_state=self.seed, 
+                            n_components=5, 
                             metric='cosine').fit_transform(self.vec[method])
           cm = hdbscan.HDBSCAN(gen_min_span_tree=True, min_cluster_size=5, min_samples = 6,
                           metric='euclidean', cluster_selection_method='eom').fit(umap_embeddings)
@@ -322,7 +353,7 @@ class Topic_Model(object):
           topic_sizes = extract_topic_sizes(docs_df) 
           
           #topic reduction
-          wanted = int(self.k)
+          wanted = self.k
           resize = len(topic_sizes) - (wanted+1)
           from sklearn.metrics.pairwise import cosine_similarity
           for i in range(resize):

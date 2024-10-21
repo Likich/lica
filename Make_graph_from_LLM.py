@@ -25,7 +25,7 @@ def make_graph_llm(method):
     if method == 'Llama3':
         process_doc_topics('doc_topics.csv', 'coded_lemmas_new.csv', model_name = "Likich/llama3-finetune-qualcoding_1000_prompt1_dot")
         data = pd.read_csv("coded_lemmas_new.csv")
-        data_filtered = data[data['Extracted codes from lemmas'].str.len() <= 50]
+        data_filtered = data[data['Extracted codes from lemmas'].str.len() <= 30]
         for topic in topics:
             topic_data = data_filtered[data_filtered['Topic'] == topic]
             code_counts = topic_data['Extracted codes from lemmas'].explode().value_counts().to_dict()
@@ -82,7 +82,7 @@ def make_graph_llm(method):
     elif method == 'Falcon':
         process_doc_topics('doc_topics.csv', 'coded_lemmas_new.csv', model_name = "Likich/falcon-finetune-qualcoding_1000_prompt1_dot")
         data = pd.read_csv("coded_lemmas_new.csv")
-        data_filtered = data[data['Extracted codes from lemmas'].str.len() <= 50]
+        data_filtered = data[data['Extracted codes from lemmas'].str.len() <= 30]
         for topic in topics:
             topic_data = data_filtered[data_filtered['Topic'] == topic]
             code_counts = topic_data['Extracted codes from lemmas'].explode().value_counts().to_dict()
