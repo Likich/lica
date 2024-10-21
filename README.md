@@ -30,7 +30,9 @@ To get started with TM_graph, follow these steps:
    pip install -r requirements.txt
    ```
 
-3. Run the server by executing app.py:
+3. Add your HuggingFace API token to the token.txt file.
+
+4. Run the server by executing app.py:
 
    ```
    python app.py
