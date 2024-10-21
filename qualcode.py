@@ -1,10 +1,4 @@
-# generation_config = model.generation_config
-# generation_config.max_new_tokens = 10
-# generation_config.temperature = 0.7
-# generation_config.top_p = 0.7
-# generation_config.num_return_sequences = 1
-# generation_config.pad_token_id = tokenizer.eos_token_id
-# generation_config.eos_token_id = tokenizer.eos_token_id
+
 def combine_data(file1, file2):
     import pandas as pd
 

@@ -1,173 +1,255 @@
-<!doctype html language='English'>
-
-
+<!doctype html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QualCode - Topic Modeling</title>
 
-    <title>Topic modeling graph</title>
-    <link rel="stylesheet" href="static/data/rubic.css">
-    <link id="dark-theme-style" rel="stylesheet" href="static/data/dark-theme.css" disabled>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts for a modern sans-serif style -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            /* Default colors for dark mode */
+            --background-color: #1c1c1e;
+            --text-color: #fff;
+            --link-color: #999;
+            --footer-color: #666;
+        }
+
+        body.light-mode {
+            /* Light mode colors */
+            --background-color: #ffffff;
+            --text-color: #000;
+            --link-color: #333;
+            --footer-color: #aaa;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1, h3 {
+            font-weight: 600;
+        }
+
+        a, .btn {
+            font-weight: 600;
+        }
+
+        .cover-container {
+            max-width: 700px;
+            padding: 20px;
+        }
+
+        .btn-custom-violet {
+            background-color: #6a0dad;
+            color: white;
+            border-color: #6a0dad;
+        }
+
+        .btn-custom-violet:hover {
+            background-color: #5a0ca8;
+            border-color: #5a0ca8;
+        }
+
+        .nav-link {
+            color: var(--link-color);
+        }
+
+        .nav-link:hover {
+            color: var(--text-color);
+        }
+
+        .custom-footer {
+            font-size: 0.8rem;
+            color: var(--footer-color);
+        }
+
+        .custom-footer a {
+            color: var(--link-color);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .active-section {
+            display: block;
+        }
+
+        /* Position and style for the theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            border: none;
+            background: #6a0dad;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+        <!-- Theme Toggle Button -->
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Black/White Mode</button>
 
-    </head>
-    <body>
-   
-    <h1>QualCode</h1>
-    <h3>Angelina Parfenova</h3>
-
-
-    <p class="links">
-    <a href="https://github.com/Likich/TM_graph">Get the source</a>
-    </p>
-    <!-- <label for="theme-slider">Dark Mode:</label>
-    <input type="checkbox" id="theme-slider" name="theme-slider"> -->
-
-    
-    <!-- <script>
-
-
-        // Save the theme to localStorage
-        localStorage.setItem('theme', 'dark-theme'); // For dark theme
-        localStorage.setItem('theme', ''); // For light theme
-        document.addEventListener('DOMContentLoaded', function () {
-        const currentTheme = localStorage.getItem('theme');
-        const darkThemeStyle = document.getElementById('dark-theme-style');
-
-        if (currentTheme === 'dark-theme') {
-            darkThemeStyle.disabled = false;
-            document.documentElement.classList.add('dark-theme');
-            // Set the toggle position if you have a toggle on this page as well
-            const toggleSwitch = document.getElementById('theme-slider');
-            if (toggleSwitch) toggleSwitch.checked = true;
+    <!-- JavaScript for Theme Toggle -->
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
         }
-        }); -->
+    </script>
+    <div class="cover-container text-center">
+        <header class="mb-4">
+            <nav class="nav justify-content-center">
+                <a class="nav-link" href="#" onclick="showSection('home')">Home</a>
+                <a class="nav-link" href="#" onclick="showSection('instructions')">Instructions</a>
+                <a class="nav-link" href="#" onclick="showSection('contact')">Contact</a>
+            </nav>
+        </header>
 
-<!-- 
-        // document.addEventListener('DOMContentLoaded', function () {
-        // const toggleSwitch = document.getElementById('theme-slider');
-        // const darkThemeStyle = document.getElementById('dark-theme-style');
-
-        // // Check for stored preference and update checkbox
-        // const currentTheme = localStorage.getItem('theme');
-        // if (currentTheme === 'dark-theme') {
-        //     darkThemeStyle.disabled = false;
-        //     toggleSwitch.checked = true;
-        // }
-
-        // toggleSwitch.addEventListener('change', function (e) {
-        //     if (e.target.checked) {
-        //     darkThemeStyle.disabled = false;
-        //     localStorage.setItem('theme', 'dark-theme');
-        //     } else {
-        //     darkThemeStyle.disabled = true;
-        //     localStorage.setItem('theme', '');
-        //     }
-        // });
-        // }); -->
-<!-- 
-      </script> -->
-      
-
-
-    <p><b>Instructions:</b></p>
-
-    <p>Please note that at the moment the service only works for the Russian and English language. 
-
-        <p>Copy paste your text in the box below and click submit.</p>
+        <main class="px-3">
+            <!-- Home Section -->
+            <div id="home" class="section active-section">
+                <h1>QualCode</h1>
+                <p class="lead">A modern tool for topic modeling and open coding. Easy, powerful, and customizable.</p>
+                
         
-        <p>Insert additional stopwords separated by comma in the box and click submit. Example: thinking, doesn, it, etc</p>
-
-        <p>Click the lemmatize button that will produce the lemmatized version of your text. </p>
+                <form id="textInputForm" class="mb-3">
+                    <textarea id="fileInput" class="form-control mb-3" rows="3" placeholder="Enter your text here..."></textarea>
+                    <button type="button" class="btn btn-custom-violet" onclick="uploadText('fileInput', 'main')">Submit Text</button>
+                </form>
         
-        <p> Click the preprocess button, after that you are given word frequencies. Think about which ones you can put in the stop words and edit additional stopwords if necessary. </p>
-        
-        <p> Next, type in the field for the method name: LDA or BERT, and specify the desired number of tops. Run the model and wait. BERT is much better, but takes considerable time.</p>
-        
+                <form id="stopWordsForm" class="mb-3">
+                    <textarea id="fileInput2" class="form-control mb-3" rows="2" placeholder="Enter additional stopwords..."></textarea>
+                    <button type="button" class="btn btn-custom-violet" onclick="uploadText('fileInput2', 'stopwords')">Submit Stopwords</button>
+                </form>
+                <!-- Additional Action Buttons -->
+                    <script>
+                    function uploadText(textareaId, fileType) {
+                        var text = document.getElementById(textareaId).value; // Get the text from the textarea
+                        var formData = new FormData();
+                        formData.append("text", text);
+                        formData.append("fileType", fileType); // Add fileType to FormData
+                    
+                        $.ajax({
+                            url: "/uploadText", // The server endpoint
+                            type: "POST",
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                alert("Text submitted successfully.");
+                            },
+                            error: function(xhr, status, error) {
+                                alert("Error submitting text.");
+                            }
+                        });
+                    }
+                    </script>
 
-    
-    <meta charset=utf-8> </head>
-    <body>
-    <h1>Run the model</h1>
 
-    <!-- Text input for the main text -->
-    <form id="textInputForm">
-        <textarea id="fileInput" rows="10" cols="50" placeholder="Enter your text here..."></textarea>
-        <button type="button" onclick="uploadText('fileInput', 'main')">Submit Text</button>
+                <div class="d-flex align-items-center mt-3">
+                    <!-- Checkbox for Include Interviewer -->
+                    <div class="form-check mr-3">
+                        <input type="checkbox" class="form-check-input" id="includeInterviewer" name="includeInterviewer" checked>
+                        <label class="form-check-label" for="includeInterviewer">Include Interviewer Phrases</label>
+                    </div>
+                    
+                    <!-- Lemmatize Button -->
+                    <button type="button" class="btn btn-custom-violet mr-3" onclick="lemmatize()">Lemmatize</button>
+                
+                    <!-- Preprocess Button as a Link -->
+                    <a href="/my-preprocess/" class="btn btn-custom-violet">Preprocess</a>
+                </div>
+  
+                <br> 
+                
+                <form id="graphForm" action="/graph/" method="POST" target="_blank">
+                    <div class="form-row justify-content-center">
+                        <div class="form-group col-md-3">
+                            <label for="s1">Method</label>
+                            <select name="Method" id="s1" class="form-control">
+                                <option value="LDA">LDA</option>
+                                <option value="BERT">BERT</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="topicsNumber">Number of Topics</label>
+                            <input type="number" name="Topics number" class="form-control" id="topicsNumber">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="keywordsNumber">Num of Keywords</label>
+                            <input type="number" name="KeywordsNumber" class="form-control" id="keywordsNumber">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="randomSeed">Random Seed</label>
+                            <input type="number" name="RandomSeed" class="form-control" id="randomSeed" placeholder="Enter seed">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-custom-violet mt-3">Run Model</button>
+                </form>
 
-    </form>
+            </div>
 
-    <!-- Text input for additional stopwords -->
-    <form id="stopWordsForm">
-        <textarea id="fileInput2" rows="5" cols="50" placeholder="Enter additional stop words here..."></textarea>
-        <button type="button" onclick="uploadText('fileInput2', 'stopwords')">Submit Stopwords</button>
+            <!-- Instructions Section -->
+            <div id="instructions" class="section">
+                <h2>Instructions</h2>
+                <p><b>Follow these steps to use QualCode:</b></p>
+                <ul class="text-left" style="list-style: none; padding: 0;">
+                    <li>1. Copy and paste your text below and click <strong>Submit Text</strong>.</li>
+                    <li>2. Enter additional stopwords (comma-separated) and click <strong>Submit Stopwords</strong>.</li>
+                    <li>3. Click <strong>Lemmatize</strong> to get the lemmatized version of your text.</li>
+                    <li>4. Click <strong>Preprocess</strong> to generate word frequencies and identify stopwords.</li>
+                    <li>5. Select the method (LDA or BERT) and the desired number of topics, then run the model.</li>
+                    <li>6. After receiving the Topic Modeling graph, choose Llama3 (8B) or Falcon (7B) models to perform open coding. You can do it only after using BERT method, as it creates clusters beforehand. </li>
+                </ul>
+                <a href="https://github.com/Likich/qualcode" class="btn btn-custom-violet my-3">Get the source</a>
+            </div>
 
-    </form>
+            <!-- Contact Section -->
+            <div id="contact" class="section">
+                <h2>Contact</h2>
+                <p>If you have any questions or need further assistance, please contact me at:</p>
+                <p>Email: anyur.pa@gmail.com</p>
+                <p>GitHub: <a href="https://github.com/Likich" class="text-light">github.com/Likich</a></p>
+                <p>LinkedIn: <a href="https://linkedin.com/in/angelina-parfenova" class="text-light">linkedin.com/in/angelina-parfenova</a></p>
+            </div>
+        </main>
+
+        <footer class="mt-5 custom-footer">
+            <p>QualCode by Likich. Code licensed MIT, docs CC BY 3.0</p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    function uploadText(textareaId, fileType) {
-        var text = document.getElementById(textareaId).value; // Get the text from the textarea
-        var formData = new FormData();
-        formData.append("text", text);
-        formData.append("fileType", fileType); // Add fileType to FormData
-    
-        $.ajax({
-            url: "/uploadText", // The server endpoint
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(response) {
-                alert("Text submitted successfully.");
-            },
-            error: function(xhr, status, error) {
-                alert("Error submitting text.");
-            }
-        });
-    }
+        function showSection(sectionId) {
+            $('.section').removeClass('active-section');
+            $('#' + sectionId).addClass('active-section');
+        }
     </script>
- 
-<!-- Rest of your forms and elements -->
-
-    <!-- <form>
-        <input type="file" id="fileInput" />
-        <button onclick="uploadFile('fileInput')">Upload File</button>
-    </form>
-    
-    <form>
-        <input type="file" id="fileInput2" />
-        <button onclick="uploadFile('fileInput2')">Upload Additional Stopwords</button>
-    </form> -->
-    
-    <br>
-
-    <form>
-        <!-- ... other form elements ... -->
-        <label for="includeInterviewer">Include Interviewer Phrases:</label>
-        <input type="checkbox" id="includeInterviewer" name="includeInterviewer" checked>
-        <br>
-        <button onclick="lemmatize()">Lemmatize</button>
-    </form>
-
-
-    <p class="btnwrap"><button> <a href="/my-preprocess/">Preprocess</a></button></p>       
 
         
-    <form id="graphForm" action="/graph/" method="POST" target = '_blank'>
-        <p>Method:
-            <select name="Method" id="s1">
-                <option value="LDA">LDA</option>
-                <option value="BERT">BERT</option>
-            </select>
-        </p>
-        <p>Max Number of Topics <input type="value" name="Topics number" /></p>
-        <p>Number of Keywords: <input type="number" name="KeywordsNumber" /></p>
-        <p>
-            <input type="submit" value="Submit">
-                </div>
-            </div>
-        </p>
-    </form>
-    
     <div class="loader-wrapper">
         <div class="loader">
             <div class="loader-inner"></div>
@@ -182,7 +264,76 @@
 		});
 	</script>
 
+    <!-- Loader -->
+    <div class="loader-wrapper" style="display: none;">
+        <div class="loader"></div>
+    </div>
+    
+    <!-- Notification Alert -->
+    <div id="lemmatizeAlert" class="alert mt-3" style="display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 1050;" role="alert"></div>
+                        
     <script>
+        function showLoader() {
+            document.querySelector('.loader-wrapper').style.display = 'flex';
+        }
+        function hideLoader() {
+            document.querySelector('.loader-wrapper').style.display = 'none';
+        }
+    
+        // Ensure loader is hidden after page loads
+        window.onload = function() {
+            hideLoader();
+        };
+    </script>
+
+    <script>
+        function lemmatize() {
+            // Show the loader
+            $('.loader-wrapper').show();
+            
+            var includeInterviewer = document.getElementById("includeInterviewer").checked;
+            
+            $.get("/my-link", { includeInterviewer: includeInterviewer }, function(data) {
+                // Hide the loader when done
+                $('.loader-wrapper').hide();
+                
+                // Show success notification
+                var alertBox = document.getElementById("lemmatizeAlert");
+                alertBox.className = "alert alert-success";
+                alertBox.textContent = "The file has been successfully lemmatized!";
+                alertBox.style.display = "block";
+                
+                // Automatically hide the alert after a few seconds
+                setTimeout(function() {
+                    alertBox.style.display = "none";
+                }, 3000);
+                
+            }).fail(function() {
+                // Hide the loader even if there is an error
+                $('.loader-wrapper').hide();
+                
+                // Show error notification
+                var alertBox = document.getElementById("lemmatizeAlert");
+                alertBox.className = "alert alert-danger";
+                alertBox.textContent = "Error: Could not process the file.";
+                alertBox.style.display = "block";
+                
+                // Automatically hide the alert after a few seconds
+                setTimeout(function() {
+                    alertBox.style.display = "none";
+                }, 3000);
+            });
+        }
+    </script>
+
+    <script type="text/javascript">
+    function loading() {
+        $("#loading").show(); // Show loading animation
+        $("#content").hide(); // Hide the main content
+    }
+    </script>
+
+    <!-- <script>
         function lemmatize() {
             // Show the loader
             $('.loader-wrapper').show();
@@ -190,7 +341,7 @@
             $.get("/my-link", { includeInterviewer: includeInterviewer }, function(data) {
                 // Hide the loader when done
                 $('.loader-wrapper').hide();
-                alert('File is processed'); // Display the response message
+                alert("Lemmatize button clicked."); // Display the response message
             }).fail(function() {
                 // Hide the loader even if there is an error
                 $('.loader-wrapper').hide();
@@ -198,52 +349,6 @@
             });
         }
 
-    </script>
-
-
-
-
-
-
-
-    <script>
-        function uploadFile(inputId) {
-            var fileInput = document.getElementById(inputId);
-            var file = fileInput.files[0];
-            var formData = new FormData();
-            formData.append("file", file);
-            $.ajax({
-                url: "/upload",
-                type: "POST",
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(data) {
-                    alert(data); // Display a success message to the user if needed
-                }
-            });
-        }
-    </script>
-
-    <script>
-        function showLoading() {
-            // Display the loading animation when the "Submit" button is clicked
-            $('.loader-wrapper').fadeIn("slow");
-            // You can add your processing logic here
-            // For example, make an AJAX request, and once it's complete, hide the loader.
-            $.ajax({
-                // Your AJAX configuration here
-            }).done(function (response) {
-                // Hide the loader after processing is complete
-                $('.loader-wrapper').fadeOut("slow");
-                // You can do more with the response if needed
-            });
-        }
-    </script>
-
-
-
-
-
-    </body>
-
+    </script> -->
+</body>
+</html>
