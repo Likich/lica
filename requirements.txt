@@ -112,6 +112,5 @@ Werkzeug==2.0.3
 widgetsnbextension==4.0.13
 zipp==3.17.0
 gunicorn
-git+https://github.com/scikit-learn-contrib/hdbscan.git
 
 
