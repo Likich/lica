@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.3.8">
   <diagram name="Page-1" id="oUK8aI7RSdqv0dPvO4AQ">
-    <mxGraphModel dx="925" dy="575" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="304" dy="189" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -446,7 +446,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="6MKjFSE9_hKYXcgJZHtc-171" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#67AB9F;strokeColor=#67AB9F;" value="&lt;font style=&quot;color: rgb(255, 255, 255);&quot;&gt;Tech concepts Extraction&lt;/font&gt;" vertex="1">
-          <mxGeometry height="20" width="147" x="353.18" y="239.89" as="geometry" />
+          <mxGeometry height="20" width="147" x="348.5" y="238.05999999999997" as="geometry" />
         </mxCell>
         <mxCell id="6MKjFSE9_hKYXcgJZHtc-172" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=light-dark(#73BFB0,#EDEDED);" value="" vertex="1">
           <mxGeometry height="7" width="38" x="348.5" y="317.84" as="geometry" />
